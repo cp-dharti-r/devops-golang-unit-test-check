@@ -1,4 +1,4 @@
-package main
+package user
 
 import (
 	"bytes"
@@ -6,19 +6,28 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"test"
 	"testing"
+	"user"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 )
 
+type Repository struct {
+	Db *sqlx.DB
+}
+
 var testDb *sqlx.DB
 var err error
+var userRepo *user.Repository
 
 func TestInit(t *testing.T) {
-	testDb = TestDB() // connection of your test database
+	testDb = test.TestDB() // connection of your test database
 	fmt.Println(testDb)
+
+	userRepo = user.New(testDb)
 }
 
 func TestCreateUserBadRequest(t *testing.T) {
@@ -29,7 +38,7 @@ func TestCreateUserBadRequest(t *testing.T) {
 
 	// create an API route
 	router := gin.Default()
-	router.POST("/api/users", Create)
+	router.POST("/api/users", userRepo.Create)
 
 	engine := gin.New()
 
@@ -55,7 +64,7 @@ func TestCreateUserSuccess(t *testing.T) {
 	CreateUsersTable(testDb)
 
 	router := gin.Default()
-	router.POST("/api/users", Create)
+	router.POST("/api/users", userRepo.Create)
 
 	engine := gin.New()
 
@@ -78,7 +87,7 @@ func TestGetUserBadRequest(t *testing.T) {
 	CreateUsersTable(testDb)
 
 	router := gin.Default()
-	router.GET("/api/users/:id", Get)
+	router.GET("/api/users/:id", userRepo.Get)
 
 	engine := gin.New()
 
@@ -101,7 +110,7 @@ func TestGetUserNotFound(t *testing.T) {
 	CreateUsersTable(testDb)
 
 	router := gin.Default()
-	router.GET("/api/users/:id", Get)
+	router.GET("/api/users/:id", userRepo.Get)
 
 	engine := gin.New()
 
@@ -125,7 +134,7 @@ func TestGetUserSuccess(t *testing.T) {
 	InsertIntoUsersTable(testDb)
 
 	router := gin.Default()
-	router.GET("/api/users/:id", Get)
+	router.GET("/api/users/:id", userRepo.Get)
 
 	engine := gin.New()
 
@@ -153,7 +162,7 @@ func TestUpdateUserBadRequest(t *testing.T) {
 	CreateUsersTable(testDb)
 
 	router := gin.Default()
-	router.PUT("/api/users/:id", Update)
+	router.PUT("/api/users/:id", userRepo.Update)
 
 	engine := gin.New()
 
@@ -180,7 +189,7 @@ func TestUpdateUserNotFound(t *testing.T) {
 	InsertIntoUsersTable(testDb)
 
 	router := gin.Default()
-	router.PUT("/api/users/:id", Update)
+	router.PUT("/api/users/:id", userRepo.Update)
 
 	engine := gin.New()
 
@@ -207,7 +216,7 @@ func TestUpdateUserSuccess(t *testing.T) {
 	InsertIntoUsersTable(testDb)
 
 	router := gin.Default()
-	router.PUT("/api/users/:id", Update)
+	router.PUT("/api/users/:id", userRepo.Update)
 
 	engine := gin.New()
 
@@ -233,7 +242,7 @@ func TestDeleteUserNotFound(t *testing.T) {
 	CreateUsersTable(testDb)
 
 	router := gin.Default()
-	router.DELETE("/api/users/:id", Delete)
+	router.DELETE("/api/users/:id", userRepo.Delete)
 
 	engine := gin.New()
 
@@ -257,7 +266,7 @@ func TestDeleteUserSuccess(t *testing.T) {
 	InsertIntoUsersTable(testDb)
 
 	router := gin.Default()
-	router.DELETE("/api/users/:id", Delete)
+	router.DELETE("/api/users/:id", userRepo.Delete)
 
 	engine := gin.New()
 

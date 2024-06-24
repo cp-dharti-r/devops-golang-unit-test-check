@@ -1,25 +1,30 @@
 package main
 
 import (
+	"db"
+	"user"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 )
 
-var db *sqlx.DB
+var sqlDb *sqlx.DB
 
 func init() {
-	db, _ = sqlx.Open("mysql", "root:password@/db-name")
+	sqlDb = db.NewSql()
 }
 
 func main() {
 	router := gin.Default()
 
-	router.POST("/api/users", Create)
-	router.GET("/api/users/:id", Get)
-	router.PUT("/api/users/:id", Update)
-	router.DELETE("/api/users/:id", Delete)
+	userRepo := user.New(sqlDb)
+
+	router.POST("/api/users", userRepo.Create)
+	router.GET("/api/users/:id", userRepo.Get)
+	router.PUT("/api/users/:id", userRepo.Update)
+	router.DELETE("/api/users/:id", userRepo.Delete)
 
 	router.Run(":8000")
 
-	defer db.Close()
+	defer sqlDb.Close()
 }
