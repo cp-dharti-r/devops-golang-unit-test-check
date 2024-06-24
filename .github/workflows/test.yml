@@ -19,4 +19,4 @@ jobs:
 
       - name: Run user API test
         run: |
-          go test -v user_test.go
+          go test -v user/tests
