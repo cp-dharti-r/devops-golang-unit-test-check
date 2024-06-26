@@ -40,8 +40,6 @@ func TestCreateUserBadRequest(t *testing.T) {
 	router := gin.Default()
 	router.POST("/api/users", userRepo.Create)
 
-	engine := gin.New()
-
 	// send request
 	req, err := http.NewRequest("POST", "/api/users", bytes.NewBuffer([]byte(`{"email": 123}`)))
 	if err != nil {
@@ -52,7 +50,7 @@ func TestCreateUserBadRequest(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
-	engine.ServeHTTP(w, req)
+	router.ServeHTTP(w, req)
 
 	// match an API response
 	assert.EqualValues(t, http.StatusBadRequest, w.Code)
@@ -66,8 +64,6 @@ func TestCreateUserSuccess(t *testing.T) {
 	router := gin.Default()
 	router.POST("/api/users", userRepo.Create)
 
-	engine := gin.New()
-
 	req, err := http.NewRequest("POST", "/api/users", bytes.NewBuffer([]byte(`{"name":"John Doe","email":"john@example.com"}`)))
 	if err != nil {
 		t.Errorf("Error in creating request: %v", err)
@@ -76,7 +72,7 @@ func TestCreateUserSuccess(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
-	engine.ServeHTTP(w, req)
+	router.ServeHTTP(w, req)
 
 	assert.EqualValues(t, http.StatusOK, w.Code)
 }
@@ -89,9 +85,7 @@ func TestGetUserBadRequest(t *testing.T) {
 	router := gin.Default()
 	router.GET("/api/users/:id", userRepo.Get)
 
-	engine := gin.New()
-
-	req, err := http.NewRequest("GET", "/api/users/", nil)
+	req, err := http.NewRequest("GET", "/api/users/id", nil)
 	if err != nil {
 		t.Errorf("Error in creating request: %v", err)
 	}
@@ -99,7 +93,7 @@ func TestGetUserBadRequest(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
-	engine.ServeHTTP(w, req)
+	router.ServeHTTP(w, req)
 
 	assert.EqualValues(t, http.StatusBadRequest, w.Code)
 }
@@ -112,8 +106,6 @@ func TestGetUserNotFound(t *testing.T) {
 	router := gin.Default()
 	router.GET("/api/users/:id", userRepo.Get)
 
-	engine := gin.New()
-
 	req, err := http.NewRequest("GET", "/api/users/1", nil)
 	if err != nil {
 		t.Errorf("Error in creating request: %v", err)
@@ -122,7 +114,7 @@ func TestGetUserNotFound(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
-	engine.ServeHTTP(w, req)
+	router.ServeHTTP(w, req)
 
 	assert.EqualValues(t, http.StatusNotFound, w.Code)
 }
@@ -136,8 +128,6 @@ func TestGetUserSuccess(t *testing.T) {
 	router := gin.Default()
 	router.GET("/api/users/:id", userRepo.Get)
 
-	engine := gin.New()
-
 	req, err := http.NewRequest("GET", "/api/users/1", nil)
 	if err != nil {
 		t.Errorf("Error in creating request: %v", err)
@@ -146,12 +136,12 @@ func TestGetUserSuccess(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
-	engine.ServeHTTP(w, req)
+	router.ServeHTTP(w, req)
 
 	assert.EqualValues(t, http.StatusOK, w.Code)
 
 	got := GotData(w, t)
-	expected := `{"id":1, "name":"John Doe"}`
+	expected := map[string]interface{}{"id": 1.0, "name": "John Doe", "email": "john@example.com"}
 
 	assert.Equal(t, expected, got)
 }
@@ -164,8 +154,6 @@ func TestUpdateUserBadRequest(t *testing.T) {
 	router := gin.Default()
 	router.PUT("/api/users/:id", userRepo.Update)
 
-	engine := gin.New()
-
 	req, err := http.NewRequest("PUT", "/api/users/1", bytes.NewBuffer([]byte(`{"email": 123}`)))
 	if err != nil {
 		t.Errorf("Error in creating request: %v", err)
@@ -174,7 +162,7 @@ func TestUpdateUserBadRequest(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
-	engine.ServeHTTP(w, req)
+	router.ServeHTTP(w, req)
 
 	assert.EqualValues(t, http.StatusBadRequest, w.Code)
 
@@ -191,8 +179,6 @@ func TestUpdateUserNotFound(t *testing.T) {
 	router := gin.Default()
 	router.PUT("/api/users/:id", userRepo.Update)
 
-	engine := gin.New()
-
 	req, err := http.NewRequest("PUT", "/api/users/5", bytes.NewBuffer([]byte(`{"name":"John Doe","email":"john@example.com"}`)))
 	if err != nil {
 		t.Errorf("Error in creating request: %v", err)
@@ -201,7 +187,7 @@ func TestUpdateUserNotFound(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
-	engine.ServeHTTP(w, req)
+	router.ServeHTTP(w, req)
 
 	assert.EqualValues(t, http.StatusNotFound, w.Code)
 
@@ -218,8 +204,6 @@ func TestUpdateUserSuccess(t *testing.T) {
 	router := gin.Default()
 	router.PUT("/api/users/:id", userRepo.Update)
 
-	engine := gin.New()
-
 	req, err := http.NewRequest("PUT", "/api/users/1", bytes.NewBuffer([]byte(`{"name":"John Doe","email":"john@example.com"}`)))
 	if err != nil {
 		t.Errorf("Error in creating request: %v", err)
@@ -228,7 +212,7 @@ func TestUpdateUserSuccess(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
-	engine.ServeHTTP(w, req)
+	router.ServeHTTP(w, req)
 
 	assert.EqualValues(t, http.StatusOK, w.Code)
 
@@ -244,8 +228,6 @@ func TestDeleteUserNotFound(t *testing.T) {
 	router := gin.Default()
 	router.DELETE("/api/users/:id", userRepo.Delete)
 
-	engine := gin.New()
-
 	req, err := http.NewRequest("DELETE", "/api/users/5", nil)
 	if err != nil {
 		t.Errorf("Error in creating request: %v", err)
@@ -254,7 +236,7 @@ func TestDeleteUserNotFound(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
-	engine.ServeHTTP(w, req)
+	router.ServeHTTP(w, req)
 
 	assert.EqualValues(t, http.StatusNotFound, w.Code)
 }
@@ -268,8 +250,6 @@ func TestDeleteUserSuccess(t *testing.T) {
 	router := gin.Default()
 	router.DELETE("/api/users/:id", userRepo.Delete)
 
-	engine := gin.New()
-
 	req, err := http.NewRequest("DELETE", "/api/users/1", nil)
 	if err != nil {
 		t.Errorf("Error in creating request: %v", err)
@@ -278,7 +258,7 @@ func TestDeleteUserSuccess(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
-	engine.ServeHTTP(w, req)
+	router.ServeHTTP(w, req)
 
 	assert.EqualValues(t, http.StatusOK, w.Code)
 }
@@ -288,13 +268,13 @@ func CreateUsersTable(Db *sqlx.DB) {
 	Db.MustExec(`CREATE TABLE IF NOT EXISTS users 
 		(id int(11) NOT NULL AUTO_INCREMENT,
 		name varchar(195) default null,
-		email varchar(195) default null
+		email varchar(195) default null,
 		primary key (id));`)
 }
 
 // insert user
 func InsertIntoUsersTable(Db *sqlx.DB) {
-	Db.MustExec("INSERT INTO users(name, email) VALUES('John Doe', 'john@example.com');")
+	Db.MustExec("INSERT INTO users(id, name, email) VALUES(1, 'John Doe', 'john@example.com');")
 }
 
 // drop users table

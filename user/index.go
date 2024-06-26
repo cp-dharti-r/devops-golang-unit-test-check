@@ -46,7 +46,7 @@ func (repository *Repository) Create(c *gin.Context) {
 func (repository *Repository) Get(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
@@ -93,13 +93,13 @@ func (repository *Repository) Update(c *gin.Context) {
 		return
 	}
 
-	result, err := repository.Db.Exec("UPDATE users SET name = ?, email = ? WHERE id = ?", input.Name, input.Email, id)
+	_, err = repository.Db.Exec("UPDATE users SET name = ?, email = ? WHERE id = ?", input.Name, input.Email, id)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, result)
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 // delete user
