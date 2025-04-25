@@ -1,13 +1,17 @@
 package db
 
 import (
+	"config"
+
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx")
+	"github.com/jmoiron/sqlx"
+)
 
 func NewSql() *sqlx.DB {
-	db := sqlx.MustConnect("mysql", "root:password@tcp(localhost:3306)/my_db")
-	
-	defer db.Close()
-	
+	cfg := config.LoadConfig()
+
+	dsn := cfg.DBUser + ":" + cfg.DBPassword + "@tcp(" + cfg.DBHost + ":" + cfg.DBPort + ")/" + cfg.DBName
+	db := sqlx.MustConnect("mysql", dsn)
+
 	return db
 }

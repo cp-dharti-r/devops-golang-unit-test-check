@@ -3,6 +3,7 @@ module main
 go 1.21.3
 
 require (
+	config v0.0.0-00010101000000-000000000000
 	db v0.0.0-00010101000000-000000000000
 	github.com/gin-gonic/gin v1.10.0
 	github.com/jmoiron/sqlx v1.4.0
@@ -45,3 +46,5 @@ replace user => ./user
 replace db => ./db
 
 replace test => ./test
+
+replace config => ./config
